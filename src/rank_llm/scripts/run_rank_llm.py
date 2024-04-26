@@ -44,10 +44,15 @@ def main(args):
     else:
         output_dir = Path(args.output_dir)
     dataset_path = Path(dataset)
-    output_file = (
-        output_dir
-        / f"{dataset_path.name[: -(len(''.join(dataset_path.suffixes)))]}.run"
-    )
+
+    tira_ouput_dir = os.environ.get("TIRA_OUTPUT_DIR", None)
+    if tira_ouput_dir:
+        output_dir = Path(tira_ouput_dir) / "run.txt"
+    else:
+        output_file = (
+            output_dir
+            / f"{dataset_path.name[: -(len(''.join(dataset_path.suffixes)))]}.run"
+        )
 
     results = retrieve_and_rerank(
         model_path,
