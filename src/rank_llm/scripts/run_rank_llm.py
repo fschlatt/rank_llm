@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 parent = os.path.dirname(SCRIPT_DIR)
@@ -14,6 +15,7 @@ from rank_llm.retrieve.pyserini_retriever import RetrievalMethod
 from rank_llm.retrieve.retriever import RetrievalMode
 from rank_llm.retrieve.topics_dict import TOPICS
 from rank_llm.retrieve_and_rerank import retrieve_and_rerank
+from rank_llm.result import ResultsWriter
 
 
 def main(args):
@@ -31,13 +33,23 @@ def main(args):
     num_few_shot_examples = args.num_few_shot_examples
     device = "cuda" if torch.cuda.is_available() else "cpu"
     variable_passages = args.variable_passages
-    retrieval_mode = RetrievalMode.DATASET
+    retrieval_mode = args.retrieval_mode
     num_passes = args.num_passes
     step_size = args.step_size
     window_size = args.window_size
     system_message = args.system_message
 
-    _ = retrieve_and_rerank(
+    if args.output_dir is None:
+        output_dir = Path.cwd()
+    else:
+        output_dir = Path(args.output_dir)
+    dataset_path = Path(dataset)
+    output_file = (
+        output_dir
+        / f"{dataset_path.name[: -(len(''.join(dataset_path.suffixes)))]}.run"
+    )
+
+    results = retrieve_and_rerank(
         model_path,
         dataset,
         retrieval_mode,
@@ -57,6 +69,9 @@ def main(args):
         step_size=step_size,
         system_message=system_message,
     )
+
+    writer = ResultsWriter(results)
+    writer.write_in_trec_eval_format(str(output_file))
 
 
 """ sample run:
@@ -99,6 +114,12 @@ if __name__ == "__main__":
         type=RetrievalMethod,
         required=True,
         choices=list(RetrievalMethod),
+    )
+    parser.add_argument(
+        "--retrieval_mode",
+        type=RetrievalMode,
+        required=True,
+        choices=list(RetrievalMode),
     )
     parser.add_argument(
         "--prompt_mode",
@@ -153,5 +174,6 @@ if __name__ == "__main__":
         default="You are RankLLM, an intelligent assistant that can rank passages based on their relevancy to the query.",
         help="the system message used in prompts",
     )
+    parser.add_argument("--output_dir", type=str, help="output directory", default=None)
     args = parser.parse_args()
     main(args)
