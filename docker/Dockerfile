@@ -13,7 +13,8 @@ RUN pip install \
     pyserini \
     python-dotenv \
     openai \
-    pip install tiktoken \
+    tiktoken \
+    tira \
     && pip cache purge
 
 COPY ./src/rank_llm /workspace/rank_llm
