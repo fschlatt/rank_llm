@@ -3,6 +3,7 @@ import os
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Union
+import gzip
 
 from rank_llm.result import Result
 from rank_llm.retrieve.pyserini_retriever import PyseriniRetriever, RetrievalMethod
@@ -142,8 +143,41 @@ class Retriever:
         Raises:
             ValueError: If the file content is not in the expected format.
         """
-        with open(file_name, "r") as f:
-            retrieved_results = json.load(f)
+        if Path(file_name).name == "rerank.jsonl.gz":
+            prev_qid = None
+            query = None
+            retrieved_results = []
+            hits = []
+            rank = 1
+            with gzip.open(file_name, "rt") as in_f:
+                for line in in_f:
+                    data = json.loads(line)
+                    qid = data["qid"]
+                    if prev_qid != qid:
+                        if prev_qid is not None:
+                            assert query is not None
+                            retrieved_results.append({"query": query, "hits": hits})
+                        hits = []
+                        rank = 1
+                        prev_qid = qid
+                    query = data["query"]
+                    docid = data["docno"]
+                    content = data["text"]
+                    hits.append(
+                        {
+                            "docid": docid,
+                            "content": content,
+                            "qid": qid,
+                            "score": -rank,
+                            "rank": rank,
+                        }
+                    )
+                    rank += 1
+            if hits and query is not None:
+                retrieved_results.append({"query": query, "hits": hits})
+        else:
+            with open(file_name, "r") as f:
+                retrieved_results = json.load(f)
         if not isinstance(retrieved_results, list):
             raise ValueError(
                 f"Invalid retrieval format: Expected a list of dictionaries, got {type(retrieved_results)}"
