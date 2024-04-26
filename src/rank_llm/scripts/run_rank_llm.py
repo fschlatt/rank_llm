@@ -33,7 +33,7 @@ def main(args):
     num_few_shot_examples = args.num_few_shot_examples
     device = "cuda" if torch.cuda.is_available() else "cpu"
     variable_passages = args.variable_passages
-    retrieval_mode = args.retrieval_mode
+    retrieval_mode = RetrievalMode.SAVED_FILE
     num_passes = args.num_passes
     step_size = args.step_size
     window_size = args.window_size
@@ -114,12 +114,6 @@ if __name__ == "__main__":
         type=RetrievalMethod,
         required=True,
         choices=list(RetrievalMethod),
-    )
-    parser.add_argument(
-        "--retrieval_mode",
-        type=RetrievalMode,
-        required=True,
-        choices=list(RetrievalMode),
     )
     parser.add_argument(
         "--prompt_mode",
