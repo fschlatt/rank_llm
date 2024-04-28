@@ -45,9 +45,9 @@ def main(args):
         output_dir = Path(args.output_dir)
     dataset_path = Path(dataset)
 
-    tira_ouput_dir = os.environ.get("TIRA_OUTPUT_DIR", None)
+    tira_ouput_dir = os.environ.get("outputDir", None)
     if tira_ouput_dir:
-        output_dir = Path(tira_ouput_dir) / "run.txt"
+        output_file = Path(tira_ouput_dir) / "run.txt"
     else:
         output_file = (
             output_dir
