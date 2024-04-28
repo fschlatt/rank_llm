@@ -14,6 +14,15 @@ current_version = 0.2.8
 
 ## 📟 Instructions
 
+### Run in tira:
+
+```bash
+tira-run \
+  --input-dataset workshop-on-open-web-search/re-ranking-20231027-training \
+  --mount-hf-model castorini/rank_zephyr_7b_v1_full \
+  --image fschlatt/rank_llm:0.0.1
+```
+
 ### Create Conda Environment
 
 ```bash
