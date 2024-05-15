@@ -143,7 +143,7 @@ class Retriever:
         Raises:
             ValueError: If the file content is not in the expected format.
         """
-        if Path(file_name).name == "rerank.jsonl.gz":
+        if Path(file_name).name.endswith(".jsonl.gz"):
             prev_qid = None
             query = None
             retrieved_results = []
