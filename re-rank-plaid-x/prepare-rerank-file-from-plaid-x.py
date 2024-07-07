@@ -36,5 +36,5 @@ if __name__ == '__main__':
 
     with gzip.open(f'{args.output}/rerank.jsonl.gz', 'wt') as f:
         for _, i in df.iterrows():
-            f.write(json.dumps({"qid": str(i['query']), "query": i['query'], "original_query": {}, "docno": str(i['docno']), "text": i['text'], "original_document": {}, "rank": i['rank'], "score": i['score']}) + '\n')
+            f.write(json.dumps({"qid": str(i['qid']), "query": i['query'], "original_query": {}, "docno": str(i['docno']), "text": i['text'], "original_document": {}, "rank": i['rank'], "score": i['score']}) + '\n')
 
